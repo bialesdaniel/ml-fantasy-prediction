@@ -45,6 +45,10 @@ const FEATURE_ATTRIBUTES = [{
     type: 'numeric'
   },
   {
+    name: 'stl',
+    type: 'numeric'
+  },
+  {
     name: 'blk',
     type: 'numeric'
   },

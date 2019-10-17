@@ -1,0 +1,17 @@
+{
+  "name": "fantasy-project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "generate:season-data": "node ./scripts/generate-season-data.js",
+    "generate:basic-instances":"node ./scripts/generate-basic-data.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "fs-extra": "^8.1.0",
+    "lodash": "^4.17.15",
+    "nba": "^4.9.0"
+  }
+}

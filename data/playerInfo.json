@@ -1,0 +1,60 @@
+{
+  commonPlayerInfo: [
+    {
+      personId: 203999,
+      firstName: "Nikola",
+      lastName: "Jokic",
+      displayFirstLast: "Nikola Jokic",
+      displayLastCommaFirst: "Jokic, Nikola",
+      displayFiLast: "N. Jokic",
+      birthdate: "1995-02-19T00:00:00",
+      school: " ",
+      country: "Serbia",
+      lastAffiliation: "Serbia/Serbia",
+      height: "7-0",
+      weight: "250",
+      seasonExp: 4,
+      jersey: "15",
+      position: "Center",
+      rosterstatus: "Active",
+      teamId: 1610612743,
+      teamName: "Nuggets",
+      teamAbbreviation: "DEN",
+      teamCode: "nuggets",
+      teamCity: "Denver",
+      playercode: "nikola_jokic",
+      fromYear: 2015,
+      toYear: 2019,
+      dleagueFlag: "N",
+      nbaFlag: "Y",
+      gamesPlayedFlag: "Y",
+      draftYear: "2014",
+      draftRound: "2",
+      draftNumber: "41"
+    }
+  ],
+  playerHeadlineStats: [
+    {
+      playerId: 203999,
+      playerName: "Nikola Jokic",
+      timeFrame: "2018-19",
+      pts: 20.1,
+      ast: 7.3,
+      reb: 10.8,
+      pie: 0.188
+    }
+  ],
+  availableSeasons: [
+    { seasonId: "12015" },
+    { seasonId: "22015" },
+    { seasonId: "12016" },
+    { seasonId: "22016" },
+    { seasonId: "12017" },
+    { seasonId: "22017" },
+    { seasonId: "12018" },
+    { seasonId: "22018" },
+    { seasonId: "32018" },
+    { seasonId: "42018" },
+    { seasonId: "12019" }
+  ]
+}

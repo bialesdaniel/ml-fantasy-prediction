@@ -1,6 +1,8 @@
 const {
   pick
 } = require('lodash')
+const {mean,standardDeviation,zScore} = require('simple-statistics')
+
 
 const BASIC = [
   'gp', 'age', 'min', 'fgm', 'fga', 'ftm', 'fta', 'reb', 'ast',
@@ -14,7 +16,7 @@ const ADVANCED = [
 
 const PARSEINT_FEATURES = ['weight','draftNumber']
 
-module.exports = {extractFeatures}
+module.exports = {extractFeatures, normalizeData}
 
 function extractFeatures({
   data
@@ -37,4 +39,26 @@ function parseIntFeatures(data){
     data[feature] = parseInt(data[feature])
   })
   return data
+}
+
+function normalizeData(instances,attributes){
+  const attributeStats = getAllAttrStats(instances,attributes)
+  return instances.map(instance=>{
+    attributeStats.forEach(({name,avg,stdev})=>{
+      instance.features[name] = zScore(instance.features[name],avg,stdev)
+    })
+    return instance
+  })
+}
+
+function getAllAttrStats(instances,attributes){
+  const stats = attributes.map(attr=> attr.type === 'numeric' ? calculateStatsForAttr(instances,attr.name) : null)
+  return stats.filter(stat=>stat!==null)
+}
+
+function calculateStatsForAttr(instances, attribute) {
+  const values = instances.map(({features})=>features[attribute])
+  const avg = mean(values)
+  const stdev = standardDeviation(values)
+  return {name:attribute,avg,stdev}
 }

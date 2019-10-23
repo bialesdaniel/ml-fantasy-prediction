@@ -1,4 +1,5 @@
 const NBA = require('nba')
+const {wait} = require('../utils')
 const {
   SEASONS,
   SEASON_TYPE,
@@ -13,6 +14,7 @@ async function getPlayerStats({Season,SeasonSegment,PerMode}){
     Season
   }
   const {leagueDashPlayerStats:data} = await NBA.stats.playerStats(options).catch(console.log)
+  await wait(1000)
   return data
 }
 
@@ -21,6 +23,7 @@ async function getPlayerInfo(PlayerID){
     PlayerID
   }
   const {commonPlayerInfo:[data]} = await NBA.stats.playerInfo(options).catch(console.log)
+  await wait(1000)
   return data
 }
 

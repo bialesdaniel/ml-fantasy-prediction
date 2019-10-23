@@ -10,4 +10,6 @@ function calculateFantasyPointsPerGame(data){
   return gp > 0 ? Math.round((calculateFantasyPoints(data) / gp)*10)/10 : 0
 }
 
-module.exports = {calculateFantasyPoints,calculateFantasyPointsPerGame}
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+module.exports = {calculateFantasyPoints,calculateFantasyPointsPerGame, wait}

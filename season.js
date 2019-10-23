@@ -1,4 +1,7 @@
-const {readJson,writeJson} = require('fs-extra')
+const {
+  readJson,
+  writeJson
+} = require('fs-extra')
 const {
   getPlayerStats,
   getPlayerInfo
@@ -11,27 +14,35 @@ const {
 } = require('./utils')
 const {
   SEASON_TYPE,
-  SEASONS
+  SEASONS,
+  MODES
 } = require('./constants')
 
-module.exports = {getSeasonInstances,getSeasonInstancesStatic,generateSeasonJSON}
+module.exports = {
+  getSeasonInstances,
+  getSeasonInstancesStatic,
+  generateSeasonJSON
+}
 
-async function generateSeasonJSON(Season,PerMode){
+async function generateSeasonJSON(Season, PerMode) {
   const options = {
     Season,
     PerMode
   }
-  const seasonStats  = await getPlayerStats(options)
-  await writeJson(`${__dirname}/data/seasons/${PerMode}/${Season}.json`,seasonStats)
+  const seasonStats = await getPlayerStats(options)
+  await writeJson(`${__dirname}/data/seasons/${PerMode}/${Season}.json`, seasonStats)
   return `generated /data/seasons/${PerMode}/${Season}.json`
 }
 
-async function getSeasonInstances(Season) {
+async function getSeasonInstances(Season,PerMode) {
   const options = {
-    Season
+    Season,
+    PerMode
   }
   const stats = await getPlayerStats(options)
-  const players = await Promise.all(stats.map( async (playerStats) => {
+  const players = []
+  for (playerStats of stats) {
+    console.log(playerStats.playerName)
     const playerInfo = await getPlayerInfo(playerStats.playerId)
     const newPlayer = {
       playerId: playerStats.playerId,
@@ -44,22 +55,22 @@ async function getSeasonInstances(Season) {
     newPlayer.features = {
       ...extractFeatures(newPlayer, Season)
     }
-    const nextYearStats = await getPlayerStats( {
-      PlayerID: newPlayer.playerId,
+    const nextYearStats = await getPlayerStats({
+      PerMode: MODES.total,
       SeasonType: SEASON_TYPE.regular,
-      Season: SEASONS[SEASONS.indexOf(Season)+1]
+      Season: SEASONS[SEASONS.indexOf(Season) + 1]
     })
     newPlayer.outcome = calculateFantasyPointsPerGame(nextYearStats)
-    return newPlayer
-  }))
+    players.push(newPlayer)
+  }
   return players
 }
 
-async function getSeasonInstancesStatic(Season){
-  const stats  = await readJson(`${__dirname}/data/seasons/PerGame/${Season}.json`)
+async function getSeasonInstancesStatic(Season) {
+  const stats = await readJson(`${__dirname}/data/seasons/PerGame/${Season}.json`)
   const nextYearStats = await readJson(`${__dirname}/data/seasons/totals/${SEASONS[SEASONS.indexOf(Season)+1]}.json`)
-  const players = stats.map( (playerStats) => {
-    const playerInfo = {}//await getPlayerInfo(playerStats.playerId)
+  const players = stats.map((playerStats) => {
+    const playerInfo = {} //await getPlayerInfo(playerStats.playerId)
     const newPlayer = {
       playerId: playerStats.playerId,
       playerName: playerStats.playerName,

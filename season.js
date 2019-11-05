@@ -2,9 +2,10 @@ const {
   readJson,
   writeJson
 } = require('fs-extra')
+const {lookupPlayerInfo:getPlayerInfo} = require('./caches/player-info')
+const {lookupPlayerStats:getNextYearStats} = require('./caches/player-total-stats')
 const {
-  getPlayerStats,
-  getPlayerInfo
+  getPlayerStats
 } = require('./connections/nba')
 const {
   extractFeatures
@@ -55,11 +56,7 @@ async function getSeasonInstances(Season,PerMode) {
     newPlayer.features = {
       ...extractFeatures(newPlayer, Season)
     }
-    const nextYearStats = await getPlayerStats({
-      PerMode: MODES.total,
-      SeasonType: SEASON_TYPE.regular,
-      Season: SEASONS[SEASONS.indexOf(Season) + 1]
-    })
+    const nextYearStats = await getNextYearStats(SEASONS[SEASONS.indexOf(Season) + 1], newPlayer.playerId)
     newPlayer.outcome = calculateFantasyPointsPerGame(nextYearStats)
     players.push(newPlayer)
   }

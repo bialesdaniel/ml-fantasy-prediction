@@ -2,37 +2,40 @@ const {
   readJson,
   writeJson
 } = require('fs-extra')
-const {lookupPlayerInfo:getPlayerInfo} = require('./caches/player-info')
-const {lookupPlayerStats:getNextYearStats} = require('./caches/player-total-stats')
+const {lookupPlayerInfo:getPlayerInfo} = require('../caches/player-info')
+const {lookupPlayerStats:getNextYearStats} = require('../caches/player-total-stats')
 const {
   getPlayerStats
-} = require('./connections/nba')
+} = require('../connections/nba')
 const {
   extractFeatures
-} = require('./features')
+} = require('../features/features')
 const {
   calculateFantasyPointsPerGame
-} = require('./utils')
+} = require('../utils')
+const ProgressBar = require('../utils/ProgressBar')
 const {
   SEASON_TYPE,
   SEASONS,
   MODES
-} = require('./constants')
+} = require('../utils/constants')
 
 module.exports = {
+  getAllSeasonsInstances,
   getSeasonInstances,
   getSeasonInstancesStatic,
   generateSeasonJSON
 }
 
-async function generateSeasonJSON(Season, PerMode) {
-  const options = {
-    Season,
-    PerMode
+async function getAllSeasonsInstances(PerMode){
+  const instances = []
+  for (season of SEASONS){
+    if(season != SEASONS[SEASONS.length-1]){ //The last season is only for the outcome
+      const result = await getSeasonInstances(season,PerMode)
+      instances.push(...result)
+    }
   }
-  const seasonStats = await getPlayerStats(options)
-  await writeJson(`${__dirname}/data/seasons/${PerMode}/${Season}.json`, seasonStats)
-  return `generated /data/seasons/${PerMode}/${Season}.json`
+  return instances
 }
 
 async function getSeasonInstances(Season,PerMode) {
@@ -41,9 +44,10 @@ async function getSeasonInstances(Season,PerMode) {
     PerMode
   }
   const stats = await getPlayerStats(options)
+  const seasonProgress = new ProgressBar({title: `${Season} season: `,total:stats.length})
   const players = []
   for (playerStats of stats) {
-    console.log(playerStats.playerName)
+    //console.log(playerStats.playerName)
     const playerInfo = await getPlayerInfo(playerStats.playerId)
     const newPlayer = {
       playerId: playerStats.playerId,
@@ -59,8 +63,20 @@ async function getSeasonInstances(Season,PerMode) {
     const nextYearStats = await getNextYearStats(SEASONS[SEASONS.indexOf(Season) + 1], newPlayer.playerId)
     newPlayer.outcome = calculateFantasyPointsPerGame(nextYearStats)
     players.push(newPlayer)
+    seasonProgress.tick()
   }
   return players
+}
+
+/*BELOW FUNCTIONS ARE FOR STATIC FETCHING INSTANCES*/
+async function generateSeasonJSON(Season, PerMode) {
+  const options = {
+    Season,
+    PerMode
+  }
+  const seasonStats = await getPlayerStats(options)
+  await writeJson(`${__dirname}/data/seasons/${PerMode}/${Season}.json`, seasonStats)
+  return `generated /data/seasons/${PerMode}/${Season}.json`
 }
 
 async function getSeasonInstancesStatic(Season) {

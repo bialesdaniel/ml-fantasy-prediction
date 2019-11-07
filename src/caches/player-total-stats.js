@@ -2,7 +2,7 @@ const {getPlayerStats} = require('../connections/nba')
 const {
   SEASON_TYPE,
   MODES
-} = require('../constants')
+} = require('../utils/constants')
 
 const CACHE = {}
 const MAX_CACHE_SIZE = 2

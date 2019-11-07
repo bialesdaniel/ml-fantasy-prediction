@@ -4,17 +4,22 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "generate:season-data": "node ./scripts/generate-season-data.js",
-    "generate:basic-instances": "node ./scripts/generate-basic-data.js",
-    "generate:basic-arff": "node ./scripts/generate-basic-arff.js"
+    "generate:season-data": "node ./scripts/basic/generate-static-season-data.js",
+    "generate:basic-instances": "node ./scripts/basic/generate-static-basic-data.js",
+    "generate:basic-arff": "node ./scripts/basic/generate-basic-arff.js",
+    "generate:advanced-instances": "node ./scripts/advanced/generate-advanced-data.js",
+    "generate:advanced-arff": "node ./scripts/advanced/generate-advanced-arff.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "arff": "^0.1.1",
+    "async-retry": "^1.2.3",
     "fs-extra": "^8.1.0",
     "lodash": "^4.17.15",
     "nba": "^4.9.0",
+    "progress": "^2.0.3",
+    "retry": "^0.12.0",
     "shuffle-array": "^1.0.1",
     "simple-statistics": "^7.0.5"
   }

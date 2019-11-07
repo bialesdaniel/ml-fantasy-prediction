@@ -1,7 +1,7 @@
 function calculateFantasyPoints(data){
   if(!data) return 0
   const {fgm,fga,ftm,fta,reb,ast,stl,blk,tov,pts} = data
-  return fgm - fga + ftm - fta + reb + ast + stl + blk + tov + pts
+  return fgm - fga + ftm - fta + reb + ast + stl + blk - tov + pts
 }
 
 function calculateFantasyPointsPerGame(data){

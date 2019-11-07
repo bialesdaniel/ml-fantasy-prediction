@@ -18,9 +18,7 @@ const PARSEINT_FEATURES = ['weight','draftNumber']
 
 module.exports = {extractFeatures, normalizeData}
 
-function extractFeatures({
-  data
-},season) {
+function extractFeatures({  data},season) {
   const rawFeatures =  {...pick(data,BASIC),season}
   return rawFeatures
 }

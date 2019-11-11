@@ -8,9 +8,10 @@ const {
   MODES
 } = require('./src/utils/constants')
 /*
-nba.stats.teamInfoCommon({TeamID:"-1",Season:"2015-16"}).then(results=>{
+nba.stats.teamPlayerDashboard({TeamID: "1610612744",SeasonType: SEASON_TYPE.regular, Season:"2015-16"}).then(results=>{
   console.log('we got here')
-  console.log(results)
+  console.log(Object.keys(results))
+  console.log(results.teamOverall)
 }).catch(err=>{
   console.log('oops')
   console.log(err)

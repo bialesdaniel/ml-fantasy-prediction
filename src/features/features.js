@@ -3,7 +3,6 @@ const {
 } = require('lodash')
 const {mean,standardDeviation,zScore} = require('simple-statistics')
 
-
 const BASIC = [
   'gp', 'age', 'min', 'fgm', 'fga', 'ftm', 'fta', 'reb', 'ast',
   'stl', 'blk', 'tov', 'pts'
@@ -16,27 +15,68 @@ const ADVANCED = [
 
 const PARSEINT_FEATURES = ['weight','draftNumber']
 
-module.exports = {extractFeatures, normalizeData}
+module.exports = {extractFeatures, extractAdvancedFeatures, numericPosition, normalizeData}
 
-function extractFeatures({  data},season) {
+function extractFeatures({ data},season) {
   const rawFeatures =  {...pick(data,BASIC),season}
   return rawFeatures
 }
-//TODO: add when move onto advanced features
+
+function extractAdvancedFeatures({data},season){
+  const rawFeatures = {...pick(data,ADVANCED)}
+  const {fromYear,height,...stableFeatures} = rawFeatures
+  const seasonExp = getSeasonExp({fromYear,season})
+  height = convertHeightToInches(height)
+  PARSEINT_FEATURES.forEach(feature=>{
+    stableFeatures[feature] = parseIntFeatures(stableFeatures[feature])
+  })
+  return {seasonExp,height,...stableFeatures}
+}
+
 function getSeasonExp({fromYear,season}){
   return parseInt(season.substring(0,4)) - fromYear
 }
-//TODO: add when move onto advanced features
+
 function convertHeightToInches(height){
   const [feet,inches] = height.split('-')
   return 12 * feet + inches
 }
-//TODO: add when move onto advanced features
+
 function parseIntFeatures(data){
   PARSEINT_FEATURES.forEach(feature=>{
     data[feature] = parseInt(data[feature])
   })
   return data
+}
+
+function numericPosition(pos){
+  let posNum = 0
+  switch(pos){
+    case 'Guard':
+      posNum = 1
+      break
+    case 'Guard-Forward':
+      posNum = 2
+      break
+    case 'Forward-Guard':
+      posNum = 3
+      break
+    case 'Forward':
+      posNum = 4
+      break
+    case 'Forward-Center':
+      posNum = 5
+      break
+    case 'Center-Forward':
+      posNum = 6
+      break
+    case 'Center':
+      posNum = 7
+      break
+    default:
+      posNum = 0
+  }
+  return posNum
 }
 
 function normalizeData(instances,attributes){

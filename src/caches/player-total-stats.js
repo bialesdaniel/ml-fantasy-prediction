@@ -13,14 +13,14 @@ async function lookupPlayerStats(Season,playerId){
   if(CACHE[Season]){
     //return CACHE[Season].find(player=>player.playerId === playerId)
     return findInCache(Season,playerId)
-  }else{
+  }else {
     const leagueStats = await getPlayerStats({
       PerMode: MODES.total,
       SeasonType: SEASON_TYPE.regular,
       Season
     })
     addToCache(Season,leagueStats)
-    return leagueStats.find(player=>player.playerId === playerId)
+    return lookupPlayerStats(Season,playerId)
   }
 }
 //This was added to make searching the cache faster for later items

@@ -2,6 +2,7 @@ const {
   readJson,
   writeJson
 } = require('fs-extra')
+const Player = require('../utils/Player')
 const {lookupPlayerInfo:getPlayerInfo} = require('../caches/player-info')
 const {lookupPlayerStats:getNextYearStats} = require('../caches/player-total-stats')
 const {
@@ -47,21 +48,15 @@ async function getSeasonInstances(Season,PerMode) {
   const seasonProgress = new ProgressBar({title: `${Season} season: `,total:stats.length})
   const players = []
   for (playerStats of stats) {
-    //console.log(playerStats.playerName)
-    const playerInfo = await getPlayerInfo(playerStats.playerId)
-    const newPlayer = {
-      playerId: playerStats.playerId,
-      playerName: playerStats.playerName,
-      data: {
-        ...playerStats,
-        ...playerInfo
-      }
-    }
-    newPlayer.features = {
+    const newPlayer = new Player({playerId:playerStats.playerId,playerName:playerStats.playerName})
+    newPlayer.addData(playerStats)
+    await newPlayer.getGeneralInfo()
+    await newPlayer.getSeasonSplitData(Season)
+    newPlayer.addFeatures({
       ...extractFeatures(newPlayer, Season)
-    }
-    const nextYearStats = await getNextYearStats(SEASONS[SEASONS.indexOf(Season) + 1], newPlayer.playerId)
-    newPlayer.outcome = calculateFantasyPointsPerGame(nextYearStats)
+    })
+    //TODO: extract more features
+    await newPlayer.getOutcome(Season)
     players.push(newPlayer)
     seasonProgress.tick()
   }

@@ -6,7 +6,7 @@ const {writeFile} = require('fs-extra')
 
 const {
   SEASONS
-} = require('./constants')
+} = require('../utils/constants')
 
 const FEATURE_ATTRIBUTES = [{
     name: 'gp',

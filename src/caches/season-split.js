@@ -9,7 +9,7 @@ const MAX_CACHE_SIZE = 1
 const PRE = "preAllStar"
 const POST = "postAllStar"
 
-module.exports = {lookupSeasonSplit}
+module.exports = {lookupSeasonSplit,PRE,POST}
 
 async function lookupSeasonSplit(Season,playerId){
   if(CACHE[Season]){

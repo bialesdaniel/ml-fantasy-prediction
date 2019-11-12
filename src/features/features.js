@@ -2,6 +2,7 @@ const {
   pick
 } = require('lodash')
 const {mean,standardDeviation,zScore} = require('simple-statistics')
+const {PRE,POST} = require('../caches/season-split')
 
 const BASIC = [
   'gp', 'age', 'min', 'fgm', 'fga', 'ftm', 'fta', 'reb', 'ast',
@@ -12,6 +13,9 @@ const ADVANCED = [
   'pf', 'pfd', 'plusMinus', 'dD2', 'tD3', 'height', 'weight', 'position',
   'draftNumber', 'school'
 ]
+const SEASON_SPLIT = ['gp', 'fgm','fga','ftm', 'fta', 'reb', 'ast',
+'stl', 'blk', 'tov', 'pts','fG3M', 'fG3A', 'oreb', 'dreb', 'blka',
+'pf', 'pfd', 'plusMinus', 'dD2', 'tD3']
 
 const PARSEINT_FEATURES = ['weight','draftNumber']
 
@@ -24,22 +28,33 @@ function extractFeatures({ data},season) {
 
 function extractAdvancedFeatures({data},season){
   const rawFeatures = {...pick(data,ADVANCED)}
-  const {fromYear,height,...stableFeatures} = rawFeatures
+  const {fromYear} = data
+  const {position,height,...otherFeatures} = rawFeatures
   const seasonExp = getSeasonExp({fromYear,season})
-  height = convertHeightToInches(height)
-  PARSEINT_FEATURES.forEach(feature=>{
-    stableFeatures[feature] = parseIntFeatures(stableFeatures[feature])
-  })
-  return {seasonExp,height,...stableFeatures}
+  const inches = convertHeightToInches(height)
+  const stableFeatures = parseIntFeatures(otherFeatures)
+  const numPosition = numericPosition(position)
+  const numSeason = numericSeasonStartingYear(season)
+  const postAllStarFeatures = extractPostAllStarFeatures(data)
+  const diffFeatures = extractPrePostAllStarDifferenceFeatures(data)
+  return {
+    seasonExp,
+    height: inches,
+    numPosition,
+    numSeason,
+    ...postAllStarFeatures,
+    ...diffFeatures,
+    ...stableFeatures
+  }
 }
 
 function getSeasonExp({fromYear,season}){
-  return parseInt(season.substring(0,4)) - fromYear
+  return numericSeasonStartingYear(season) - fromYear
 }
 
 function convertHeightToInches(height){
   const [feet,inches] = height.split('-')
-  return 12 * feet + inches
+  return 12 * parseInt(feet) + parseInt(inches)
 }
 
 function parseIntFeatures(data){
@@ -77,6 +92,29 @@ function numericPosition(pos){
       posNum = 0
   }
   return posNum
+}
+
+function numericSeasonStartingYear(season){
+  return parseInt(season.substring(0,4))
+}
+
+function extractPostAllStarFeatures(data){
+  const postFeatures ={}
+  const postAllStar = data[POST]
+  SEASON_SPLIT.forEach(attr=>postFeatures[`post_${attr}`] = postAllStar ? postAllStar[attr] : 0)
+  return postFeatures
+}
+
+function extractPrePostAllStarDifferenceFeatures(data){
+  const diffFeatures = {}
+  const preAllStar = data[PRE]
+  const postAllStar = data[POST]
+  SEASON_SPLIT.forEach(attr=>{
+    const postStat = postAllStar ? postAllStar[attr] : 0
+    const preStat = preAllStar ? preAllStar[attr] : 0
+    diffFeatures[`pre_post_diff_${attr}`] = (postStat *1000 - preStat *1000)/1000
+  })
+  return diffFeatures
 }
 
 function normalizeData(instances,attributes){

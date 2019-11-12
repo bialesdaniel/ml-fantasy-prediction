@@ -9,7 +9,8 @@ const {
   getPlayerStats
 } = require('../connections/nba')
 const {
-  extractFeatures
+  extractFeatures,
+  extractAdvancedFeatures
 } = require('../features/features')
 const {
   calculateFantasyPointsPerGame
@@ -53,9 +54,9 @@ async function getSeasonInstances(Season,PerMode) {
     await newPlayer.getGeneralInfo()
     await newPlayer.getSeasonSplitData(Season)
     newPlayer.addFeatures({
-      ...extractFeatures(newPlayer, Season)
+      ...extractFeatures(newPlayer, Season),
+      ...extractAdvancedFeatures(newPlayer, Season)
     })
-    //TODO: extract more features
     await newPlayer.getOutcome(Season)
     players.push(newPlayer)
     seasonProgress.tick()

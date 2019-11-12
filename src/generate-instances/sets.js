@@ -11,7 +11,7 @@ function getInstanceSets(instances) {
   } = getSetBoundries(instances)
   const developmentInstances = shuffledInstances.slice(0, devBoundry)
   const crossValidationInstances = shuffledInstances.slice(devBoundry, cvBoundry)
-  const finalInstances = shuffledInstances.slide(cvBoundry, finalBoundry)
+  const finalInstances = shuffledInstances.slice(cvBoundry, finalBoundry)
   return {
     developmentInstances,
     crossValidationInstances,

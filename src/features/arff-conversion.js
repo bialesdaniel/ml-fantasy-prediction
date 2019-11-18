@@ -66,6 +66,16 @@ const FEATURE_ATTRIBUTES = [{
     values: SEASONS
   },
 ]
+const ADVANCED_FEATURE_ATTRIBUTES=[
+  {
+    name: 'seasonExp',
+    type: 'numeric'
+  },
+  {
+    name: 'draftNumber',
+    type: 'numeric'
+  }
+]
 const OUTCOME_ATTRIBUTE = {
   name:'fppg',
   type: 'numeric'
@@ -82,4 +92,9 @@ async function writeARRFFile(path,arffObj){
   await writeFile(path,fileContent)
 }
 
-module.exports = {FEATURE_ATTRIBUTES,generateARFFObj,writeARRFFile}
+module.exports = {
+  FEATURE_ATTRIBUTES,
+  ADVANCED_FEATURE_ATTRIBUTES,
+  generateARFFObj,
+  writeARRFFile
+}

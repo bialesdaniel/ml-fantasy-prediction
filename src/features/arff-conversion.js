@@ -74,6 +74,50 @@ const ADVANCED_FEATURE_ATTRIBUTES=[
   {
     name: 'draftNumber',
     type: 'numeric'
+  },
+  {
+    name: 'post_reb',
+    type: 'numeric'
+  },
+  {
+    name: 'post_gp',
+    type: 'numeric'
+  },
+  {
+    name: 'post_fgm',
+    type: 'numeric'
+  },
+  {
+    name: 'post_fga',
+    type: 'numeric'
+  },
+  {
+    name: 'post_ftm',
+    type: 'numeric'
+  },
+  {
+    name: 'post_fta',
+    type: 'numeric'
+  },
+  {
+    name: 'post_ast',
+    type: 'numeric'
+  },
+  {
+    name: 'post_stl',
+    type: 'numeric'
+  },
+  {
+    name: 'post_blk',
+    type: 'numeric'
+  },
+  {
+    name: 'post_tov',
+    type: 'numeric'
+  },
+  {
+    name: 'post_pts',
+    type: 'numeric'
   }
 ]
 const OUTCOME_ATTRIBUTE = {

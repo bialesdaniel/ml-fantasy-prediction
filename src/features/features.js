@@ -20,7 +20,7 @@ const SEASON_SPLIT = ['gp', 'min', 'fgm','fga','ftm', 'fta', 'reb', 'ast',
 
 const PARSEINT_FEATURES = ['weight','draftNumber']
 
-module.exports = {extractFeatures, extractAdvancedFeatures, numericPosition, normalizeData}
+module.exports = {extractFeatures, extractAdvancedFeatures, numericPosition, standardizeMissingValues, normalizeData}
 
 function extractFeatures({ data},season) {
   const rawFeatures =  {...pick(data,BASIC),season}
@@ -140,6 +140,26 @@ function extractCurrentSeasonTotalFeatures(data){
   })
   currentYear[`${CURRENT_YEAR_TOTALS}_fppg`] = currYearTotals.fppg
   return currentYear
+}
+
+function standardizeMissingValues(instances){
+  const featuresToFix = ['school','teamAbbreviation']
+  return instances.map(instance=>{
+    Object.keys(instance.features).forEach(feature=>{
+      if(featuresToFix.includes(feature)){
+        if(instance.features[feature]===null ||
+            instance.features[feature]==="" ||
+            instance.features[feature]===undefined ||
+            instance.features[feature]==="?" ||
+            instance.features[feature]==="No College" ||
+            instance.features[feature]===" "
+           ){
+          instance.features[feature]="None"
+        }
+      }
+    })
+    return instance
+  })
 }
 
 function normalizeData(instances,attributes){

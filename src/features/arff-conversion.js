@@ -1,7 +1,7 @@
 const {
   format
 } = require('arff')
-const {normalizeData} = require('./features')
+const {standardizeMissingValues,normalizeData} = require('./features')
 const {writeFile} = require('fs-extra')
 const {PREVIOUS_YEAR_TOTALS,CURRENT_YEAR_TOTALS} = require('../utils/constants')
 
@@ -246,7 +246,8 @@ function renameStats(prefix){
 }
 
 function generateARFFObj({relation,attributes,instances}){
-  const players = normalizeData(instances,attributes)
+  let players = standardizeMissingValues(instances)
+  players = normalizeData(players,attributes)
   const data = players.map(({playerName,features,outcome})=>({playerName,...features,fppg:outcome}))
   return {relation,attributes:[...attributes,OUTCOME_ATTRIBUTE],data}
 }

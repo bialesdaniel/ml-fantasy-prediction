@@ -32,7 +32,7 @@ module.exports = {
 async function getAllSeasonsInstances(PerMode){
   const instances = []
   for (season of SEASONS){
-    if(season != SEASONS[SEASONS.length-1]){ //The last season is only for the outcome
+    if(season != SEASONS[SEASONS.length-1] && season != SEASONS[0]){ //The last season is only for the outcome
       const result = await getSeasonInstances(season,PerMode)
       instances.push(...result)
     }
@@ -53,6 +53,8 @@ async function getSeasonInstances(Season,PerMode) {
     newPlayer.addData(playerStats)
     await newPlayer.getGeneralInfo()
     await newPlayer.getSeasonSplitData(Season)
+    await newPlayer.getPreviousSeaonTotals(Season)
+    await newPlayer.getCurrentSeasonTotals(Season)
     newPlayer.addFeatures({
       ...extractFeatures(newPlayer, Season),
       ...extractAdvancedFeatures(newPlayer, Season)

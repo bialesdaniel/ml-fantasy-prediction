@@ -1,6 +1,7 @@
 const shuffle = require('shuffle-array')
+const {readJson} = require('fs-extra')
 
-module.exports = {getInstanceSets}
+module.exports = {getInstanceSets,distributeInstancesByPreviousFile}
 
 function getInstanceSets(instances) {
   const shuffledInstances = shuffle(instances)
@@ -16,6 +17,38 @@ function getInstanceSets(instances) {
     developmentInstances,
     crossValidationInstances,
     finalInstances
+  }
+}
+
+async function distributeInstancesByPreviousFile(files,instances){
+  const {dir, devFile, cvFile, finalFile} = files
+  const devSet = await readJson(`${dir}/${devFile}`)
+  const cvSet = await readJson(`${dir}/${cvFile}`)
+  const finalSet = await readJson(`${dir}/${finalFile}`)
+  const developmentInstances = []
+  const crossValidationInstances = []
+  const finalInstances = []
+  instances.forEach((player)=>{
+    if(devSet.some(isPlayerInSet(player.playerId,player.features.season))){
+      developmentInstances.push(player)
+    }else if(cvSet.some(isPlayerInSet(player.playerId,player.features.season))){
+      crossValidationInstances.push(player)
+    }else if(finalSet.some(isPlayerInSet(player.playerId,player.features.season))){
+      finalInstances.push(player)
+    }else{
+      throw new Error(`player: ${player.playerName} does not exist in any set`)
+    }
+  })
+  return {
+    developmentInstances,
+    crossValidationInstances,
+    finalInstances
+  }
+}
+
+function isPlayerInSet(playerId, season){
+  return (cplayer)=> {
+    return cplayer.playerId === playerId && cplayer.features.season === season
   }
 }
 

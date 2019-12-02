@@ -5,7 +5,7 @@ const {
 } = require('../utils/constants')
 
 const CACHE = {}
-const MAX_CACHE_SIZE = 2
+const MAX_CACHE_SIZE = 3
 
 module.exports = {lookupPlayerStats}
 

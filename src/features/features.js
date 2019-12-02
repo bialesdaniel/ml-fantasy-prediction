@@ -3,9 +3,10 @@ const {
 } = require('lodash')
 const {mean,standardDeviation,zScore} = require('simple-statistics')
 const {PRE,POST} = require('../caches/season-split')
+const {PREVIOUS_YEAR_TOTALS,CURRENT_YEAR_TOTALS} = require('../utils/constants')
 
 const BASIC = [
-  'gp', 'age', 'min', 'fgm', 'fga', 'ftm', 'fta', 'reb', 'ast',
+  'playerName','gp', 'age', 'min', 'fgm', 'fga', 'ftm', 'fta', 'reb', 'ast',
   'stl', 'blk', 'tov', 'pts'
 ]
 const ADVANCED = [
@@ -13,7 +14,7 @@ const ADVANCED = [
   'pf', 'pfd', 'plusMinus', 'dD2', 'tD3', 'height', 'weight', 'position',
   'draftNumber', 'school'
 ]
-const SEASON_SPLIT = ['gp', 'fgm','fga','ftm', 'fta', 'reb', 'ast',
+const SEASON_SPLIT = ['gp', 'min', 'fgm','fga','ftm', 'fta', 'reb', 'ast',
 'stl', 'blk', 'tov', 'pts','fG3M', 'fG3A', 'oreb', 'dreb', 'blka',
 'pf', 'pfd', 'plusMinus', 'dD2', 'tD3']
 
@@ -37,6 +38,8 @@ function extractAdvancedFeatures({data},season){
   const numSeason = numericSeasonStartingYear(season)
   const postAllStarFeatures = extractPostAllStarFeatures(data)
   const diffFeatures = extractPrePostAllStarDifferenceFeatures(data)
+  const previousYear = extractPreviousSeasonTotalFeatures(data)
+  const currentYearTotals = extractCurrentSeasonTotalFeatures(data)
   return {
     seasonExp,
     height: inches,
@@ -44,7 +47,9 @@ function extractAdvancedFeatures({data},season){
     numSeason,
     ...postAllStarFeatures,
     ...diffFeatures,
-    ...stableFeatures
+    ...stableFeatures,
+    ...previousYear,
+    ...currentYearTotals
   }
 }
 
@@ -115,6 +120,26 @@ function extractPrePostAllStarDifferenceFeatures(data){
     diffFeatures[`pre_post_diff_${attr}`] = (postStat *1000 - preStat *1000)/1000
   })
   return diffFeatures
+}
+
+function extractPreviousSeasonTotalFeatures(data){
+  const previousYear = {}
+  prevYearTotals = data[PREVIOUS_YEAR_TOTALS]
+  SEASON_SPLIT.forEach(attr =>{
+    previousYear[`${PREVIOUS_YEAR_TOTALS}_${attr}`] = prevYearTotals[attr] ? prevYearTotals[attr] : 0
+  })
+  previousYear[`${PREVIOUS_YEAR_TOTALS}_fppg`] = prevYearTotals.fppg
+  return previousYear
+}
+
+function extractCurrentSeasonTotalFeatures(data){
+  const currentYear = {}
+  currYearTotals = data[CURRENT_YEAR_TOTALS]
+  SEASON_SPLIT.forEach(attr =>{
+    currentYear[`${CURRENT_YEAR_TOTALS}_${attr}`] = currYearTotals[attr] ? currYearTotals[attr] : 0
+  })
+  currentYear[`${CURRENT_YEAR_TOTALS}_fppg`] = currYearTotals.fppg
+  return currentYear
 }
 
 function normalizeData(instances,attributes){

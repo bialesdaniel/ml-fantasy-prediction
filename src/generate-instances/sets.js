@@ -29,11 +29,12 @@ async function distributeInstancesByPreviousFile(files,instances){
   const crossValidationInstances = []
   const finalInstances = []
   instances.forEach((player)=>{
-    if(devSet.some(isPlayerInSet(player.playerId,player.features.season))){
+    const season = getSeason(player)
+    if(devSet.some(isPlayerInSet(player.playerId,season))){
       developmentInstances.push(player)
-    }else if(cvSet.some(isPlayerInSet(player.playerId,player.features.season))){
+    }else if(cvSet.some(isPlayerInSet(player.playerId,season))){
       crossValidationInstances.push(player)
-    }else if(finalSet.some(isPlayerInSet(player.playerId,player.features.season))){
+    }else if(finalSet.some(isPlayerInSet(player.playerId,season))){
       finalInstances.push(player)
     }else{
       throw new Error(`player: ${player.playerName} does not exist in any set`)
@@ -48,8 +49,13 @@ async function distributeInstancesByPreviousFile(files,instances){
 
 function isPlayerInSet(playerId, season){
   return (cplayer)=> {
-    return cplayer.playerId === playerId && cplayer.features.season === season
+    const cSeason = getSeason(cplayer)
+    return cplayer.playerId === playerId && cSeason === season
   }
+}
+
+function getSeason(player){
+  return Object.entries(player.features).filter(kvp=>(kvp[0].startsWith('"season=')&&kvp[1]===1))[0][0].replace(/(season=|\")/g,'')
 }
 
 /* 20% dev, 70% CV, 10% final */

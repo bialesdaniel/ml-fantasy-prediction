@@ -10,8 +10,12 @@ const {
 } = require('../connections/nba')
 const {
   extractFeatures,
-  extractAdvancedFeatures
+  extractAdvancedFeatures,
+  standardizeMissingValues,
+  normalizeData,
+  stringToBinaryNormalization
 } = require('../features/features')
+const {ADVANCED_FEATURE_ATTRIBUTES} = require('../features/arff-conversion')
 const {
   calculateFantasyPointsPerGame
 } = require('../utils')
@@ -30,14 +34,15 @@ module.exports = {
 }
 
 async function getAllSeasonsInstances(PerMode){
-  const instances = []
+  /*const instances = []
   for (season of SEASONS){
     if(season != SEASONS[SEASONS.length-1] && season != SEASONS[0]){ //The last season is only for the outcome
       const result = await getSeasonInstances(season,PerMode)
       instances.push(...result)
     }
-  }
-  return instances
+  }*/
+  const instances = await readJson(`${__dirname}/../../instances/advanced/advanced-instances-all.json`)
+  return normalize(instances,ADVANCED_FEATURE_ATTRIBUTES)
 }
 
 async function getSeasonInstances(Season,PerMode) {
@@ -64,6 +69,13 @@ async function getSeasonInstances(Season,PerMode) {
     seasonProgress.tick()
   }
   return players
+}
+
+function normalize(instances,attributes){
+  let newInstances = standardizeMissingValues(instances)
+  newInstances = normalizeData(newInstances,attributes)
+  newInstances = stringToBinaryNormalization(newInstances,attributes)
+  return newInstances
 }
 
 /*BELOW FUNCTIONS ARE FOR STATIC FETCHING INSTANCES*/

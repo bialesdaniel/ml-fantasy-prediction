@@ -246,9 +246,7 @@ function renameStats(prefix){
 }
 
 function generateARFFObj({relation,attributes,instances}){
-  let players = standardizeMissingValues(instances)
-  players = normalizeData(players,attributes)
-  const data = players.map(({playerName,features,outcome})=>({playerName,...features,fppg:outcome}))
+  const data = instances.map(({playerName,features,outcome})=>({playerName,...features,fppg:outcome}))
   return {relation,attributes:[...attributes,OUTCOME_ATTRIBUTE],data}
 }
 

@@ -1,7 +1,7 @@
 const {
   pick
 } = require('lodash')
-const {mean,standardDeviation,zScore} = require('simple-statistics')
+const {mean,standardDeviation,zScore,min,max} = require('simple-statistics')
 const {PRE,POST} = require('../caches/season-split')
 const {PREVIOUS_YEAR_TOTALS,CURRENT_YEAR_TOTALS} = require('../utils/constants')
 
@@ -20,7 +20,14 @@ const SEASON_SPLIT = ['gp', 'min', 'fgm','fga','ftm', 'fta', 'reb', 'ast',
 
 const PARSEINT_FEATURES = ['weight','draftNumber']
 
-module.exports = {extractFeatures, extractAdvancedFeatures, numericPosition, standardizeMissingValues, normalizeData}
+module.exports = {
+  extractFeatures,
+  extractAdvancedFeatures,
+  numericPosition,
+  standardizeMissingValues,
+  normalizeData,
+  stringToBinaryNormalization
+}
 
 function extractFeatures({ data},season) {
   const rawFeatures =  {...pick(data,BASIC),season}
@@ -162,11 +169,21 @@ function standardizeMissingValues(instances){
   })
 }
 
-function normalizeData(instances,attributes){
+function zScoreData(instances,attributes){
   const attributeStats = getAllAttrStats(instances,attributes)
   return instances.map(instance=>{
     attributeStats.forEach(({name,avg,stdev})=>{
       instance.features[name] = zScore(instance.features[name],avg,stdev)
+    })
+    return instance
+  })
+}
+
+function normalizeData(instances,attributes){
+  const attributeStats = getAllAttrStats(instances,attributes)
+  return instances.map(instance=>{
+    attributeStats.forEach(({name,minimum,maximum})=>{
+      instance.features[name] = normalize({value:instance.features[name],minimum,maximum})
     })
     return instance
   })
@@ -181,5 +198,41 @@ function calculateStatsForAttr(instances, attribute) {
   const values = instances.map(({features})=>features[attribute])
   const avg = mean(values)
   const stdev = standardDeviation(values)
-  return {name:attribute,avg,stdev}
+  const minimum = min(values)
+  const maximum = max(values)
+  return {name:attribute,avg,stdev,minimum,maximum}
+}
+
+function normalize({value,minimum,maximum}){
+  return (value-minimum)/(maximum-minimum)
+}
+
+function stringToBinaryNormalization(instances){
+  const stringFeatures = ['school','teamAbbreviation','season']
+  let transformedInstances = instances
+  const binaryFeatures = stringFeatures.map(feature=>{
+    const arffBinaryFeatures = stringToBinaryFeaturesList(feature,instances)
+    return arffBinaryFeatures.map(({name})=>name)
+  })
+  binaryFeatures.forEach((features,i)=>{
+    transformedInstances = transformedInstances.map(instance=>{
+      features.forEach(feature=>{
+        if(feature === `"${stringFeatures[i]}=${instance.features[stringFeatures[i]]}"`){
+          instance.features[feature]=1
+        }else{
+          instance.features[feature]=0
+        }
+      })
+      delete instance.features[stringFeatures[i]]
+      return instance
+    })
+  })
+  return transformedInstances
+}
+
+function stringToBinaryFeaturesList(feature,instances){
+  const binaryFeatureNames = new Set(instances.map(({features})=>{
+    return `"${feature}=${features[feature]}"`
+  }))
+  return Array.from(binaryFeatureNames).map(featureName=>({name:featureName,type:'numeric'}))
 }

@@ -40,7 +40,7 @@ async function getAllSeasonsInstances(PerMode){
       const result = await getSeasonInstances(season,PerMode)
       instances.push(...result)
     }
-  }
+
   //const instances = await readJson(`${__dirname}/../../instances/advanced/advanced-instances-all.json`)
   return normalize(instances,ADVANCED_FEATURE_ATTRIBUTES)
 }

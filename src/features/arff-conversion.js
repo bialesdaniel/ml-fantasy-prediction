@@ -1,7 +1,7 @@
 const {
   format
 } = require('arff')
-const {standardizeMissingValues,normalizeData} = require('./features')
+const {standardizeMissingValues} = require('./features')
 const {writeFile} = require('fs-extra')
 const {PREVIOUS_YEAR_TOTALS,CURRENT_YEAR_TOTALS, CURRENT_PREVIOUS_DIFF,CURRENT_PER_MIN,FPPG_BUCKETS,POSITIONS} = require('../utils/constants')
 
@@ -161,6 +161,22 @@ const ADVANCED_STATS = [
   },
   {
     name: 'tD3',
+    type: 'numeric'
+  },
+  {
+    name:'fgPct',
+    type: 'numeric'
+  },
+  {
+    name: 'fg3Pct',
+    type: 'numeric'
+  },
+  {
+    name:'ftPct',
+    type: 'numeric'
+  },
+  {
+    name: 'wPct',
     type: 'numeric'
   }
 ]

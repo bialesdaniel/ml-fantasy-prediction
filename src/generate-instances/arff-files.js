@@ -15,7 +15,7 @@ async function generateARFFFiles({dir,attributes}){
 }
 
 function getAttributes(instances){
-  const nonNumeric = ['playerName']
+  const nonNumeric = ['playerName','position']
   return Object.keys(instances[0].features).map(feature=>({
     name: feature,
     type: nonNumeric.includes(feature)?'string':'numeric'

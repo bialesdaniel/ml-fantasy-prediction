@@ -3,7 +3,7 @@ const {
 } = require('arff')
 const {standardizeMissingValues,normalizeData} = require('./features')
 const {writeFile} = require('fs-extra')
-const {PREVIOUS_YEAR_TOTALS,CURRENT_YEAR_TOTALS} = require('../utils/constants')
+const {PREVIOUS_YEAR_TOTALS,CURRENT_YEAR_TOTALS, CURRENT_PREVIOUS_DIFF,CURRENT_PER_MIN,FPPG_BUCKETS,POSITIONS} = require('../utils/constants')
 
 const {
   SEASONS
@@ -182,6 +182,11 @@ const BIO_STATS = [
     type: 'numeric'
   },
   {
+    name: 'position',
+    enum: 'enum',
+    values: ['unknown','wing','guard','big']
+  },
+  {
     name: 'numPosition',
     type: 'numeric'
   },
@@ -220,6 +225,14 @@ const FPPG_STATS = [
     name: `${PREVIOUS_YEAR_TOTALS}_fppg`,
     type: 'numeric'
   },
+  {
+    name: `${CURRENT_PREVIOUS_DIFF}_fppg`,
+    type: 'numeric'
+  },
+  {
+    name: `${CURRENT_PER_MIN}_fppg`,
+    type: 'numeric'
+  },
 ]
 const ADVANCED_FEATURE_ATTRIBUTES = [
   ...BIO_STATS,
@@ -229,11 +242,18 @@ const ADVANCED_FEATURE_ATTRIBUTES = [
   ...renameStats('pre_post_diff'),
   ...renameStats(PREVIOUS_YEAR_TOTALS),
   ...renameStats(CURRENT_YEAR_TOTALS),
+  ...renameStats(CURRENT_PREVIOUS_DIFF),
+  ...renameStats(CURRENT_PER_MIN),
   ...FPPG_STATS
 ]
 const OUTCOME_ATTRIBUTE = {
   name:'fppg',
   type: 'numeric'
+}
+const BUCKET_ATTRIBUTE = {
+  name: 'fppg_bucket',
+  type: 'enum',
+  values: FPPG_BUCKETS
 }
 
 function renameStats(prefix){
@@ -246,8 +266,8 @@ function renameStats(prefix){
 }
 
 function generateARFFObj({relation,attributes,instances}){
-  const data = instances.map(({playerName,features,outcome})=>({playerName,...features,fppg:outcome}))
-  return {relation,attributes:[...attributes,OUTCOME_ATTRIBUTE],data}
+  const data = instances.map(({playerName,features,outcome,bucket})=>({playerName,...features,fppg:outcome,fppg_bucket:bucket}))
+  return {relation,attributes:[...attributes,OUTCOME_ATTRIBUTE,BUCKET_ATTRIBUTE],data}
 }
 
 async function writeARRFFile(path,arffObj){

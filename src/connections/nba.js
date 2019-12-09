@@ -14,6 +14,7 @@ async function getPlayerStats({Season,SeasonSegment,PerMode}){
     SeasonSegment,
     Season
   }
+
   const {leagueDashPlayerStats:data} = await NBA.stats.playerStats(options).catch(console.log)
   await wait(1000)
   return data

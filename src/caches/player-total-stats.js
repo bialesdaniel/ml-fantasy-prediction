@@ -25,16 +25,17 @@ async function lookupPlayerStats(Season,playerId){
 }
 //This was added to make searching the cache faster for later items
 function findInCache(Season,playerId){
-  let playerStats = undefined
+  /*let playerStats = undefined
   CACHE[Season] = CACHE[Season].filter((player)=>{
     if(player.playerId === playerId){
       playerStats = player
-      return false
+      return true //TODO: this was false but I'm pretty sure it broke things
     }else{
       return true
     }
   })
-  return playerStats
+  return playerStats*/
+  return CACHE[Season].find((player)=>player.playerId === playerId)
 }
 
 function addToCache(Season,leagueStats){

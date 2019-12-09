@@ -3,7 +3,7 @@ const {
 } = require('lodash')
 const {mean,standardDeviation,zScore,min,max} = require('simple-statistics')
 const {PRE,POST} = require('../caches/season-split')
-const {PREVIOUS_YEAR_TOTALS,CURRENT_YEAR_TOTALS} = require('../utils/constants')
+const {PREVIOUS_YEAR_TOTALS,CURRENT_YEAR_TOTALS,CURRENT_PREVIOUS_DIFF,CURRENT_PER_MIN} = require('../utils/constants')
 
 const BASIC = [
   'playerName','gp', 'age', 'min', 'fgm', 'fga', 'ftm', 'fta', 'reb', 'ast',
@@ -42,21 +42,27 @@ function extractAdvancedFeatures({data},season){
   const inches = convertHeightToInches(height)
   const stableFeatures = parseIntFeatures(otherFeatures)
   const numPosition = numericPosition(position)
+  const parsedPosition = parsePosition(position)
   const numSeason = numericSeasonStartingYear(season)
   const postAllStarFeatures = extractPostAllStarFeatures(data)
   const diffFeatures = extractPrePostAllStarDifferenceFeatures(data)
   const previousYear = extractPreviousSeasonTotalFeatures(data)
   const currentYearTotals = extractCurrentSeasonTotalFeatures(data)
+  const seasonDiff = extractSeasonDiffFeatures(data)
+  const perMin = extractPerMinFeatures(data)
   return {
     seasonExp,
     height: inches,
+    position: parsedPosition,
     numPosition,
     numSeason,
     ...postAllStarFeatures,
     ...diffFeatures,
     ...stableFeatures,
     ...previousYear,
-    ...currentYearTotals
+    ...currentYearTotals,
+    ...seasonDiff,
+    ...perMin
   }
 }
 
@@ -64,14 +70,16 @@ function getSeasonExp({fromYear,season}){
   return numericSeasonStartingYear(season) - fromYear
 }
 
-function convertHeightToInches(height){
+//default to average NBA height
+function convertHeightToInches(height='6-7'){
+  height = height === '' ? '6-7' : height
   const [feet,inches] = height.split('-')
   return 12 * parseInt(feet) + parseInt(inches)
 }
 
 function parseIntFeatures(data){
   PARSEINT_FEATURES.forEach(feature=>{
-    data[feature] = parseInt(data[feature])
+    data[feature] = parseInt(data[feature]?data[feature]:"0")
   })
   return data
 }
@@ -106,6 +114,20 @@ function numericPosition(pos){
   return posNum
 }
 
+function parsePosition(position){
+  let posTag
+  if (position === ""){
+    posTag = 'unknown'
+  }else if(position.includes('Guard') && position.includes('Forward')){
+    posTag = 'wing'
+  } else if (position.includes('Guard')){
+    posTag = 'guard'
+  } else{
+    posTag = 'big'
+  }
+  return posTag
+}
+
 function numericSeasonStartingYear(season){
   return parseInt(season.substring(0,4))
 }
@@ -131,7 +153,7 @@ function extractPrePostAllStarDifferenceFeatures(data){
 
 function extractPreviousSeasonTotalFeatures(data){
   const previousYear = {}
-  prevYearTotals = data[PREVIOUS_YEAR_TOTALS]
+  const prevYearTotals = data[PREVIOUS_YEAR_TOTALS]
   SEASON_SPLIT.forEach(attr =>{
     previousYear[`${PREVIOUS_YEAR_TOTALS}_${attr}`] = prevYearTotals[attr] ? prevYearTotals[attr] : 0
   })
@@ -141,12 +163,32 @@ function extractPreviousSeasonTotalFeatures(data){
 
 function extractCurrentSeasonTotalFeatures(data){
   const currentYear = {}
-  currYearTotals = data[CURRENT_YEAR_TOTALS]
+  const currYearTotals = data[CURRENT_YEAR_TOTALS]
   SEASON_SPLIT.forEach(attr =>{
     currentYear[`${CURRENT_YEAR_TOTALS}_${attr}`] = currYearTotals[attr] ? currYearTotals[attr] : 0
   })
   currentYear[`${CURRENT_YEAR_TOTALS}_fppg`] = currYearTotals.fppg
   return currentYear
+}
+
+function extractSeasonDiffFeatures(data){
+  const features = {}
+  const seasonDiff = data[CURRENT_PREVIOUS_DIFF]
+  SEASON_SPLIT.forEach(attr => {
+    features[`${CURRENT_PREVIOUS_DIFF}_${attr}`] = seasonDiff[attr] ? seasonDiff[attr] : 0
+  })
+  features[`${CURRENT_PREVIOUS_DIFF}_fppg`] = seasonDiff.fppg
+  return features
+}
+
+function extractPerMinFeatures(data){
+  const features = {}
+  const perMin = data[CURRENT_PER_MIN]
+  SEASON_SPLIT.forEach(attr => {
+    features[`${CURRENT_PER_MIN}_${attr}`] = perMin[attr] ? perMin[attr] : 0
+  })
+  features[`${CURRENT_PER_MIN}_fppg`] = perMin.fppg
+  return features
 }
 
 function standardizeMissingValues(instances){

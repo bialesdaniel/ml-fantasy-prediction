@@ -34,14 +34,14 @@ module.exports = {
 }
 
 async function getAllSeasonsInstances(PerMode){
-  /*const instances = []
+  const instances = []
   for (season of SEASONS){
     if(season != SEASONS[SEASONS.length-1] && season != SEASONS[0]){ //The last season is only for the outcome
       const result = await getSeasonInstances(season,PerMode)
       instances.push(...result)
     }
-  }*/
-  const instances = await readJson(`${__dirname}/../../instances/advanced/advanced-instances-all.json`)
+  }
+  //const instances = await readJson(`${__dirname}/../../instances/advanced/advanced-instances-all.json`)
   return normalize(instances,ADVANCED_FEATURE_ATTRIBUTES)
 }
 
@@ -60,6 +60,8 @@ async function getSeasonInstances(Season,PerMode) {
     await newPlayer.getSeasonSplitData(Season)
     await newPlayer.getPreviousSeaonTotals(Season)
     await newPlayer.getCurrentSeasonTotals(Season)
+    newPlayer.getSeasonDiff()
+    newPlayer.getCurrentStatsPerMin()
     newPlayer.addFeatures({
       ...extractFeatures(newPlayer, Season),
       ...extractAdvancedFeatures(newPlayer, Season)

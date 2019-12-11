@@ -18,7 +18,7 @@ const SEASON_SPLIT = ['gp', 'min', 'fgm','fga','ftm', 'fta', 'reb', 'ast',
 'stl', 'blk', 'tov', 'pts','fG3M', 'fG3A', 'oreb', 'dreb', 'blka',
 'pf', 'pfd', 'plusMinus', 'dD2', 'tD3','fgPct','fg3Pct','ftPct','wPct']
 
-const PARSEINT_FEATURES = ['weight','draftNumber']
+const PARSEINT_FEATURES = ['weight','draftNumber']  //TODO: '?' are getting input for draft number change this to a large number.
 
 module.exports = {
   extractFeatures,
